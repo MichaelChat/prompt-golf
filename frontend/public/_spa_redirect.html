@@ -1,0 +1,11 @@
+  <!-- GitHub Pages SPA deep-link restore -->
+  <!-- Add this <script> tag inside <head> in index.html -->
+  <script>
+    (function() {
+      var redirect = sessionStorage.getItem('pg_redirect');
+      if (redirect) {
+        sessionStorage.removeItem('pg_redirect');
+        history.replaceState(null, '', redirect);
+      }
+    })();
+  </script>

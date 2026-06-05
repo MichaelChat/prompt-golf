@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>PromptGolf</title>
+    <script>
+      // GitHub Pages SPA routing trick:
+      // Redirect /repo/hole/3 → /repo/?p=/hole/3
+      // Then index.html reads it back and replaces history state
+      var base = location.pathname.replace(/\/[^\/]*$/, '');
+      var path = location.pathname.slice(base.length);
+      if (path) {
+        sessionStorage.setItem('pg_redirect', path + location.search);
+        location.replace(base + '/' + location.search);
+      }
+    </script>
+  </head>
+  <body></body>
+</html>
