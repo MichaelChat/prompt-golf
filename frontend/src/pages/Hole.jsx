@@ -118,7 +118,6 @@ export function HolePage() {
         <div className={styles.holeHeader}>
           <div className={styles.holeMeta}>
             <span className={styles.holeNum}>Hole {hole.number}</span>
-            <span className={styles.parBadge}>par {hole.par}</span>
             {deterministic && (
               <span className={styles.detBadge}>temp=0</span>
             )}
