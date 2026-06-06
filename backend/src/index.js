@@ -151,7 +151,7 @@ app.get('/leaderboard/:holeId', async (req, res) => {
 app.get('/holes', async (_req, res) => {
   const { data, error } = await supabase
     .from('holes')
-    .select('id, number, title, description, target_output, hint, par')
+    .select('id, number, title, description, target_output, hint')
     .order('number');
 
   if (error) return res.status(500).json({ error: error.message });
