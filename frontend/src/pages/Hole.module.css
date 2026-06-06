@@ -460,3 +460,28 @@
   0%, 100% { opacity: 1; }
   50% { opacity: 0.4; }
 }
+
+/* ── Inline username prompt ── */
+.usernamePrompt {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.65rem 0.875rem;
+  background: var(--amber-bg);
+  border: 1px solid rgba(251,191,36,0.25);
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  color: var(--amber);
+  flex-wrap: wrap;
+}
+
+.usernameInline {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  padding: 0.3rem 0.65rem;
+  background: var(--bg-surface);
+  border: 1px solid rgba(251,191,36,0.4);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  width: 160px;
+}

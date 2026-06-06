@@ -22,11 +22,11 @@ export function HolePage() {
   const [showHint, setShowHint] = useState(false);
 
   const [running, setRunning] = useState(false);
-  const [result, setResult] = useState(null); // { output, matched, tokens }
+  const [result, setResult] = useState(null);
   const [submitError, setSubmitError] = useState(null);
 
   const [lbRefresh, setLbRefresh] = useState(0);
-  const [username] = useUsername();
+  const [username, setUsername] = useUsername();
   const textareaRef = useRef(null);
 
   const { tokens, tokenize, loading: tokLoading, ready: tokReady } = useTokenizer(model);
@@ -62,7 +62,7 @@ export function HolePage() {
 
   const handleSubmit = useCallback(async () => {
     if (!prompt.trim() || !hole) return;
-    if (!username) {
+    if (!username || !username.trim()) {
       setSubmitError('Please enter a username in the top-right first.');
       return;
     }
@@ -80,7 +80,7 @@ export function HolePage() {
       if (matched) {
         await api.submitScore({
           holeId: hole.id,
-          username,
+          username: username.trim(),
           model,
           deterministic,
           tokens: tokens.length,
@@ -108,7 +108,6 @@ export function HolePage() {
   if (!hole) return <div className={styles.loading}>Hole not found.</div>;
 
   const modelInfo = getModel(model);
-  const parDiff = result?.matched ? tokens.length - hole.par : null;
 
   return (
     <div className={styles.layout}>
@@ -145,6 +144,20 @@ export function HolePage() {
             {showHint && (
               <p className={`${styles.hintText} fade-in`}>{hole.hint}</p>
             )}
+          </div>
+        )}
+
+        {/* Username input — also shown inline for visibility */}
+        {!username?.trim() && (
+          <div className={styles.usernamePrompt}>
+            <span>Enter a username to submit scores:</span>
+            <input
+              className={styles.usernameInline}
+              value={username}
+              onChange={e => setUsername(e.target.value)}
+              placeholder="your username"
+              maxLength={32}
+            />
           </div>
         )}
 
@@ -225,11 +238,6 @@ export function HolePage() {
                   ? `Match! ${result.tokens} token${result.tokens !== 1 ? 's' : ''}`
                   : 'No match — try again'}
               </strong>
-              {result.matched && parDiff !== null && (
-                <span className={styles.parDiff}>
-                  {parDiff === 0 ? 'par' : parDiff < 0 ? `${Math.abs(parDiff)} under par 🎉` : `${parDiff} over par`}
-                </span>
-              )}
             </div>
             <pre className={styles.resultOutput}>{result.output}</pre>
           </div>
@@ -238,7 +246,6 @@ export function HolePage() {
 
       {/* ── Sidebar ── */}
       <aside className={styles.sidebar}>
-        {/* Model selector (also in sidebar for visibility) */}
         <div className={styles.sideCard}>
           <div className={styles.sideTitle}>Leaderboard</div>
           <div className={styles.lbModelRow}>
