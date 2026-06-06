@@ -147,20 +147,6 @@ export function HolePage() {
           </div>
         )}
 
-        {/* Username input — also shown inline for visibility */}
-        {!username?.trim() && (
-          <div className={styles.usernamePrompt}>
-            <span>Enter a username to submit scores:</span>
-            <input
-              className={styles.usernameInline}
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-              placeholder="your username"
-              maxLength={32}
-            />
-          </div>
-        )}
-
         {/* Prompt input */}
         <section className={styles.inputSection}>
           <div className={styles.sectionLabel}>your prompt</div>
