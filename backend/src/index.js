@@ -33,8 +33,7 @@ app.use(express.json());
 const GROQ_MODELS = {
   'llama3.1:70b':  'llama-3.3-70b-versatile',
   'llama3.1:8b':   'llama-3.1-8b-instant',
-  'mistral:7b':    'llama-3.1-8b-instant',
-  'gemma2:9b':     'gemma-2-9b-it',
+  'gemma2:9b':     'gemma2-9b-it',
 };
 
 const DEFAULT_MODEL = 'llama3.1:70b';
