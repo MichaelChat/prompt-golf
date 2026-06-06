@@ -72,7 +72,7 @@ export function GlobalLeaderboardPage() {
             <div key={hole.id} className={styles.card}>
               <div className={styles.cardHeader}>
                 <span className={styles.cardNum}>Hole {hole.number}</span>
-                <span className={styles.cardPar}>par {hole.par}</span>
+
                 <button
                   className={styles.playBtn}
                   onClick={() => navigate(`/hole/${hole.number}`)}

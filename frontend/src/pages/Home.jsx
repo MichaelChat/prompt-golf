@@ -30,7 +30,7 @@ export function HomePage() {
         <div className={styles.empty}>
           <p>No holes yet — add one in Supabase!</p>
           <code className={styles.hint}>
-            insert into holes (number, title, description, target_output, par) values …
+            insert into holes (number, title, description, target_output) values …
           </code>
         </div>
       ) : (
@@ -43,7 +43,6 @@ export function HomePage() {
             >
               <div className={styles.cardTop}>
                 <span className={styles.holeNum}>#{hole.number}</span>
-                <span className={styles.par}>par {hole.par}</span>
               </div>
               <h2 className={styles.cardTitle}>{hole.title}</h2>
               <p className={styles.cardDesc}>{hole.description}</p>
