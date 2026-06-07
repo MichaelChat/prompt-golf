@@ -94,9 +94,8 @@ Error generating stack: `+o.message+`
             return;
           }
           try {
-            const encoded = tokenizer.encode(text, { add_special_tokens: false });
-            const tokenStrings = encoded.map(tid => tokenizer.decode([tid]));
-            self.postMessage({ type: 'result', id, tokens: tokenStrings });
+            const tokenStrings = tokenizer.tokenize(text, { add_special_tokens: false });
+            self.postMessage({ type: 'result', id, tokens: tokenStrings || [] });
           } catch (err) {
             self.postMessage({ type: 'result', id, tokens: null });
           }
