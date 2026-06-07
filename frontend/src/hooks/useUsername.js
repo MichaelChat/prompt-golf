@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 const KEY = 'pg_username';
 
@@ -10,7 +10,13 @@ export function useUsername() {
 
   const setUsername = (name) => {
     setUsernameState(name);
-    try { localStorage.setItem(KEY, name); } catch {}
+    try {
+      if (name.trim()) {
+        localStorage.setItem(KEY, name);
+      } else {
+        localStorage.removeItem(KEY);
+      }
+    } catch {}
   };
 
   return [username, setUsername];
