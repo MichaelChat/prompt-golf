@@ -18,6 +18,7 @@ export function useUsername() {
     const handler = () => setUsernameState(getStored());
     window.addEventListener(EVENT, handler);
     return () => window.removeEventListener(EVENT, handler);
+
   }, []);
 
   const setUsername = (name) => {
