@@ -27,6 +27,7 @@ export function HolePage() {
 
   const [lbRefresh, setLbRefresh] = useState(0);
   const [username, setUsername] = useUsername();
+  const hasUsername = username.trim().length > 0;
   const textareaRef = useRef(null);
 
   const { tokens, tokenize, loading: tokLoading, ready: tokReady } = useTokenizer(model);
@@ -62,7 +63,7 @@ export function HolePage() {
 
   const handleSubmit = useCallback(async () => {
     if (!prompt.trim() || !hole) return;
-    if (!username || !username.trim()) {
+    if (!hasUsername) {
       setSubmitError('Please enter a username in the top-right first.');
       return;
     }
@@ -178,7 +179,7 @@ export function HolePage() {
           <button
             className={styles.submitBtn}
             onClick={handleSubmit}
-            disabled={running || !prompt.trim()}
+            disabled={running || !prompt.trim() || !hasUsername}
             aria-busy={running}
           >
             {running ? (
