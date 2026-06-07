@@ -4,6 +4,7 @@ import cors from 'cors';
 import fetch from 'node-fetch';
 import { createClient } from '@supabase/supabase-js';
 import ws from 'ws';
+import { judgeResponse } from './judge.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -29,29 +30,54 @@ app.use(cors({
 app.use(express.json());
 
 // ── Groq model ID mapping ─────────────────────────────────────────────────────
-// Frontend model IDs → Groq API model strings
 const GROQ_MODELS = {
-  'llama3.1:70b':  'llama-3.3-70b-versatile',
-  'llama3.1:8b':   'llama-3.1-8b-instant',
-  'gemma2:9b':     'gemma2-9b-it',
+  'llama3.1:70b': 'llama-3.3-70b-versatile',
+  'llama3.1:8b':  'llama-3.1-8b-instant',
+  'gemma2:9b':    'gemma2-9b-it',
 };
 
 const DEFAULT_MODEL = 'llama3.1:70b';
+
+// ── Holes — served from Supabase ──────────────────────────────────────────────
+// Cached in memory to avoid extra DB calls on every /run
+let holesCache = null;
+
+async function getHoles() {
+  if (holesCache) return holesCache;
+  const { data, error } = await supabase
+    .from('holes')
+    .select('id, number, title, description, target_output, hint, rules')
+    .order('number');
+  if (error) throw new Error(error.message);
+  holesCache = data;
+  // Invalidate cache every 5 minutes so new holes appear
+  setTimeout(() => { holesCache = null; }, 5 * 60 * 1000);
+  return holesCache;
+}
 
 // ── Health ────────────────────────────────────────────────────────────────────
 app.get('/health', (_req, res) => res.json({ ok: true, provider: 'groq' }));
 
 // ── List available models ─────────────────────────────────────────────────────
-// Returns the same shape the frontend expects
 app.get('/models', (_req, res) => {
   const models = Object.keys(GROQ_MODELS).map(id => ({ id, label: id }));
   res.json({ models });
 });
 
-// ── Run a prompt against Groq ─────────────────────────────────────────────────
-// POST /run  { prompt, model, deterministic }
+// ── Get all holes ─────────────────────────────────────────────────────────────
+app.get('/holes', async (_req, res) => {
+  try {
+    const holes = await getHoles();
+    res.json({ holes });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ── Run a prompt against Groq + judge the result ──────────────────────────────
+// POST /run  { prompt, holeId, model, deterministic }
 app.post('/run', async (req, res) => {
-  const { prompt, model = DEFAULT_MODEL, deterministic = false } = req.body;
+  const { prompt, holeId, model = DEFAULT_MODEL, deterministic = false } = req.body;
 
   if (!prompt || typeof prompt !== 'string') {
     return res.status(400).json({ error: 'prompt is required' });
@@ -59,8 +85,28 @@ app.post('/run', async (req, res) => {
   if (prompt.length > 999) {
     return res.status(400).json({ error: 'Prompt exceeds 999 character limit' });
   }
+  if (!holeId) {
+    return res.status(400).json({ error: 'holeId is required' });
+  }
 
+  // Fetch hole rules
+  let hole;
+  try {
+    const holes = await getHoles();
+    hole = holes.find(h => h.id === holeId || h.id === Number(holeId));
+    if (!hole) return res.status(404).json({ error: 'Hole not found' });
+  } catch (err) {
+    return res.status(500).json({ error: `Failed to fetch hole: ${err.message}` });
+  }
+
+  // Build rules — use hole.rules if present, otherwise fall back to target_output exact match
+  const rules = (hole.rules && hole.rules.length > 0)
+    ? hole.rules
+    : [{ type: 'regex', pattern: `^${escapeRegex(hole.target_output ?? '')}$` }];
+
+  // Run prompt through Groq
   const groqModel = GROQ_MODELS[model] ?? GROQ_MODELS[DEFAULT_MODEL];
+  let output;
 
   try {
     const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -84,13 +130,16 @@ app.post('/run', async (req, res) => {
     }
 
     const data = await groqRes.json();
-    const output = data.choices?.[0]?.message?.content ?? '';
-
-    res.json({ output });
+    output = data.choices?.[0]?.message?.content ?? '';
   } catch (err) {
     console.error('Groq request failed:', err.message);
-    res.status(502).json({ error: 'Failed to reach Groq API' });
+    return res.status(502).json({ error: 'Failed to reach Groq API' });
   }
+
+  // Judge the output
+  const { matched, results } = await judgeResponse({ output, prompt, rules });
+
+  res.json({ output, matched, results });
 });
 
 // ── Submit a successful score ──────────────────────────────────────────────────
@@ -146,17 +195,6 @@ app.get('/leaderboard/:holeId', async (req, res) => {
   res.json({ leaderboard: data });
 });
 
-// ── Get all holes ──────────────────────────────────────────────────────────────
-app.get('/holes', async (_req, res) => {
-  const { data, error } = await supabase
-    .from('holes')
-    .select('id, number, title, description, target_output, hint')
-    .order('number');
-
-  if (error) return res.status(500).json({ error: error.message });
-  res.json({ holes: data });
-});
-
 // ── Submit a hole idea ────────────────────────────────────────────────────────
 app.post('/suggest-hole', async (req, res) => {
   const { username, title, description, targetOutput, hint } = req.body;
@@ -175,6 +213,11 @@ app.post('/suggest-hole', async (req, res) => {
   if (error) return res.status(500).json({ error: error.message });
   res.json({ ok: true });
 });
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 app.listen(PORT, () => {
   console.log(`⛳ PromptGolf backend running on http://localhost:${PORT}`);
