@@ -78,8 +78,7 @@ export function HolePage() {
     setSubmitError(null);
 
     try {
-      const { output } = await api.runPrompt({ prompt, model, deterministic });
-      const matched = output.trim() === hole.target_output.trim();
+      const { output, matched, results } = await api.runPrompt({ prompt, holeId: hole.id, model, deterministic });
 
       setResult({ output, matched, tokens: tokens.length });
 

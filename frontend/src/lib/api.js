@@ -15,10 +15,10 @@ export const api = {
 
   getModels: () => request('/models'),
 
-  runPrompt: ({ prompt, model, deterministic }) =>
+  runPrompt: ({ prompt, holeId, model, deterministic }) =>
     request('/run', {
       method: 'POST',
-      body: JSON.stringify({ prompt, model, deterministic }),
+      body: JSON.stringify({ prompt, holeId, model, deterministic }),
     }),
 
   submitScore: ({ holeId, username, model, deterministic, tokens, prompt }) =>
