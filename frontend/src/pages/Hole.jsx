@@ -28,6 +28,11 @@ export function HolePage() {
   const [lbRefresh, setLbRefresh] = useState(0);
   const [username, setUsername] = useUsername();
   const hasUsername = username.trim().length > 0;
+
+  // Clear username error when they start typing a name
+  useEffect(() => {
+    if (hasUsername) setSubmitError(null);
+  }, [username]);
   const textareaRef = useRef(null);
 
   const { tokens, tokenize, loading: tokLoading, ready: tokReady } = useTokenizer(model);
