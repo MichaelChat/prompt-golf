@@ -79,7 +79,7 @@ app.get('/holes', async (_req, res) => {
 app.post('/run', async (req, res) => {
   const { prompt, holeId, model = DEFAULT_MODEL, deterministic = false } = req.body;
 
-  if (!prompt || typeof prompt !== 'string') {
+  if (prompt === undefined || prompt === null || typeof prompt !== 'string') {
     return res.status(400).json({ error: 'prompt is required' });
   }
   if (prompt.length > 999) {

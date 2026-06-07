@@ -67,7 +67,7 @@ export function HolePage() {
   }, [prompt, tokenize]);
 
   const handleSubmit = useCallback(async () => {
-    if (!prompt.trim() || !hole) return;
+    if (!prompt.length || !hole) return;
     if (!hasUsername) {
       setSubmitError('Please enter a username in the top-right first.');
       return;
@@ -184,7 +184,7 @@ export function HolePage() {
           <button
             className={styles.submitBtn}
             onClick={handleSubmit}
-            disabled={running || !prompt.trim() || !hasUsername}
+            disabled={running || prompt.length === 0 || !hasUsername}
             aria-busy={running}
           >
             {running ? (
