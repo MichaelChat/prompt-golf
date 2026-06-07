@@ -80,7 +80,7 @@ export function HolePage() {
     try {
       const { output, matched, results } = await api.runPrompt({ prompt, holeId: hole.id, model, deterministic });
 
-      setResult({ output, matched, tokens: tokens.length });
+      setResult({ output, matched, results, tokens: tokens.length });
 
       if (matched) {
         await api.submitScore({
@@ -231,6 +231,16 @@ export function HolePage() {
               </strong>
             </div>
             <pre className={styles.resultOutput}>{result.output}</pre>
+            {result.results?.length > 0 && (
+              <div className={styles.ruleResults}>
+                {result.results.map((r, i) => (
+                  <div key={i} className={`${styles.ruleRow} ${r.passed ? styles.rulePassed : styles.ruleFailed}`}>
+                    <span className={styles.ruleIcon}>{r.passed ? '✓' : '✗'}</span>
+                    <span className={styles.ruleReason}>{r.reason}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </main>
