@@ -20,14 +20,19 @@ export function Nav() {
       </div>
 
       <div className={styles.account}>
-        <input
-          className={styles.usernameInput}
-          value={username}
-          onChange={e => setUsername(e.target.value)}
-          placeholder="your username"
-          maxLength={32}
-          aria-label="Your username"
-        />
+        <div className={styles.usernameWrapper}>
+          <input
+            className={`${styles.usernameInput} ${!username.trim() ? styles.usernameEmpty : styles.usernameSet}`}
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            placeholder="enter username"
+            maxLength={32}
+            aria-label="Your username"
+          />
+          {!username.trim() && (
+            <span className={styles.usernameHint}>← required to submit</span>
+          )}
+        </div>
       </div>
     </nav>
   );

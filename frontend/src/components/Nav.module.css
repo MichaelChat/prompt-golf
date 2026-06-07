@@ -59,8 +59,13 @@
 .account {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
   flex-shrink: 0;
+}
+
+.usernameWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .usernameInput {
@@ -68,17 +73,34 @@
   font-size: 0.75rem;
   padding: 0.35rem 0.65rem;
   width: 140px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   color: var(--text-primary);
+  transition: border-color 0.15s, background 0.15s;
 }
 
-.usernameInput::placeholder {
-  color: var(--text-muted);
+.usernameEmpty {
+  background: var(--amber-bg);
+  border: 1px solid rgba(251, 191, 36, 0.5);
+}
+
+.usernameEmpty::placeholder {
+  color: var(--amber);
+  opacity: 0.8;
+}
+
+.usernameSet {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+}
+
+.usernameHint {
+  font-size: 0.7rem;
+  color: var(--amber);
+  white-space: nowrap;
 }
 
 @media (max-width: 600px) {
   .logoText { display: none; }
-  .usernameInput { width: 110px; }
+  .usernameInput { width: 100px; }
+  .usernameHint { display: none; }
 }
