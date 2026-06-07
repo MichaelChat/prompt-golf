@@ -518,3 +518,32 @@
 
 .rulePassed .ruleReason { color: var(--green); opacity: 0.85; }
 .ruleFailed .ruleReason { color: var(--red); opacity: 0.85; }
+
+.rulesList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.rulesItem {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+}
+
+.rulesType {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--purple);
+  background: var(--purple-bg);
+  border: 1px solid rgba(167,139,250,0.2);
+  padding: 1px 7px;
+  border-radius: 20px;
+  flex-shrink: 0;
+}
+
+.rulesDesc {
+  font-size: 0.875rem;
+  color: var(--text-primary);
+}

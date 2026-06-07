@@ -8,6 +8,20 @@ import { TokenBar } from '../components/TokenBar.jsx';
 import { LeaderboardPanel } from '../components/Leaderboard.jsx';
 import styles from './Hole.module.css';
 
+function describeRule(rule) {
+  switch (rule.type) {
+    case 'regex':      return `Must match: ${rule.pattern}`;
+    case 'word_count': return `Must be exactly ${rule.count} words`;
+    case 'max_words':  return `Must be at most ${rule.count} words`;
+    case 'min_words':  return `Must be at least ${rule.count} words`;
+    case 'char_count': return `Must be exactly ${rule.count} characters`;
+    case 'json_valid': return rule.required_keys?.length ? `Valid JSON with keys: ${rule.required_keys.join(', ')}` : 'Must be valid JSON';
+    case 'quine':      return 'Output must equal your prompt exactly';
+    case 'llm':        return rule.criteria;
+    default:           return rule.type;
+  }
+}
+
 export function HolePage() {
   const { holeNumber } = useParams();
   const navigate = useNavigate();
@@ -133,7 +147,18 @@ export function HolePage() {
         {/* Target output */}
         <section className={styles.targetBox}>
           <div className={styles.sectionLabel}>target output</div>
-          <pre className={styles.targetText}>{hole.target_output}</pre>
+          {hole.target_output ? (
+            <pre className={styles.targetText}>{hole.target_output}</pre>
+          ) : (
+            <div className={styles.rulesList}>
+              {(hole.rules || []).map((r, i) => (
+                <div key={i} className={styles.rulesItem}>
+                  <span className={styles.rulesType}>{r.type}</span>
+                  <span className={styles.rulesDesc}>{describeRule(r)}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
         {/* Hint */}
